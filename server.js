@@ -41,13 +41,26 @@ app.post("/register", async (req, res) => {
     if (existingUser) {
       return res.status(400).json({ error: "Cannot use that email, it is already registered." });
     }
+
+    // حفظ المستخدم الجديد
     const newUser = new User({ email, name, password });
     await newUser.save();
+
+    // 🔥 إنشاء التوكن مباشرة بعد التسجيل
+    const token = jwt.sign(
+      { id: newUser._id, email: newUser.email },
+      secret,
+      { expiresIn: "30d" }
+    );
+
     res.json({
       message: "Registered successfully!",
-      id: newUser._id,
-      email: newUser.email,
-      username: newUser.name
+      token,  // ✅ إرسال التوكن بعد التسجيل
+      user: {
+        id: newUser._id,
+        email: newUser.email,
+        username: newUser.name
+      }
     });
   } catch (error) {
     console.error("❌ خطأ في التسجيل:", error);
@@ -74,15 +87,16 @@ app.post("/login", async (req, res) => {
       return res.status(400).json({ error: "Incorrect password." });
     }
 
+    // ✅ إنشاء التوكن
     const token = jwt.sign(
-      { id: existingUser._id, email: existingUser.email }, 
-      secret, 
+      { id: existingUser._id, email: existingUser.email },
+      secret,
       { expiresIn: "30d" }
     );
 
     res.json({
       message: "Login successful",
-      token, 
+      token,  // ✅ إرسال التوكن بعد تسجيل الدخول
       user: {
         id: existingUser._id,
         email: existingUser.email,
@@ -94,6 +108,7 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 
 
