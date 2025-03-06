@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const cors = require('cors');
-app.use(cors());
 
 
 
@@ -13,6 +12,7 @@ const secret = "mySecretKey";
 
 
 
+app.use(cors());
 const DB_URI = "mongodb+srv://mopokdh:20081230abddet@cluster0.hs4bb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 mongoose
   .connect(DB_URI)
