@@ -186,25 +186,30 @@ app.get("/my-todos",authenticateToken, async (req, res) => {
 
 
 
-app.put("/edit_todo",authenticateToken, async (req, res) => {
+app.put("/complete_todo", authenticateToken, async (req, res) => {
   try {
-    const { todoId, newTask } = req.body; // استلام القيم الجديدة
-    if (!todoId || !newTask) {
-      return res.status(400).json({ error: "Todo ID and new task content are required" });
+    const { todoId } = req.body; // استلام معرف المهمة فقط
+    if (!todoId) {
+      return res.status(400).json({ error: "Todo ID is required" });
     }
+
+    // تحديث الحالة إلى مكتملة
     const updatedTodo = await Todo.findByIdAndUpdate(
       todoId,
-      { task: newTask },
+      { completed: true }, // تحديث خاصية "completed" إلى true
       { new: true }
     );
+
     if (!updatedTodo) {
       return res.status(404).json({ error: "Todo not found" });
     }
-    return res.status(200).json({ message: "Todo edited successfully", updatedTodo });
+
+    return res.status(200).json({ message: "Todo marked as completed", updatedTodo });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
 });
+
 
 
 
