@@ -159,18 +159,21 @@ app.post("/new-todo", authenticateToken, async (req, res) => {
 
 
 
-app.get("/my-todos",authenticateToken, async (req, res) => {
+app.get("/incomplete-todos", authenticateToken, async (req, res) => {
   try {
-    const { userId } = req.query; // استخدام req.query بدلاً من req.body في GET
+    const { userId } = req.query; // استخدام query parameter بدلاً من body
     if (!userId) {
       return res.status(400).json({ error: "User ID is required" });
     }
+
     const userExists = await User.findById(userId);
     if (!userExists) {
       return res.status(404).json({ error: "User not found" });
     }
-    const todos = await Todo.find({ userId }); // جلب المهام المرتبطة بالمستخدم
-    return res.status(200).json({ todos });
+
+    const incompleteTodos = await Todo.find({ userId, completed: false });
+
+    return res.status(200).json({ incompleteTodos });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
@@ -178,6 +181,26 @@ app.get("/my-todos",authenticateToken, async (req, res) => {
 
 
 
+
+app.get("/completed-todos", authenticateToken, async (req, res) => {
+  try {
+    const { userId } = req.query;
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    const userExists = await User.findById(userId);
+    if (!userExists) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const completedTodos = await Todo.find({ userId, completed: true });
+
+    return res.status(200).json({ completedTodos });
+  } catch (error) {
+    return res.status(500).json({ error: "Internal server error", details: error.message });
+  }
+});
 
 
 
