@@ -262,8 +262,14 @@ return res.status(200).json({ message: "Todo deleted successfully" });
 
 app.get("/all_users", async (req, res) => {
   try {
+    const { password } = req.query; // ← استخدم query parameters
+    if (password !== "mopok99") {
+      return res.status(401).json({ error: "Unauthorized access" }); // ← كلمة مرور خاطئة
+    }
+
     const users = await User.find();
     res.json({ message: "Registered users:", users });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -275,15 +281,24 @@ app.get("/all_users", async (req, res) => {
 
 
 
+
 app.delete("/clear-database", async (req, res) => {
   try {
-    await Todo.deleteMany({});  
-    await User.deleteMany({});  
+    const { password } = req.query;
+
+    if (password !== "mopok99") {
+      return res.status(401).json({ error: "Unauthorized access" });
+    }
+
+    await Todo.deleteMany({});
+    await User.deleteMany({});
     return res.status(200).json({ message: "Database cleared successfully" });
+
   } catch (error) {
     return res.status(500).json({ error: "Internal server error", details: error.message });
   }
 });
+
 
 
 
